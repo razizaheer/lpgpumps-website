@@ -1,0 +1,12 @@
+/faq.html /shipping#faq 301
+/faq /shipping#faq 301
+/contact_us.html /about_us#contact 301
+/contact_us /about_us#contact 301
+/gallery.html /products 301
+/gallery /products 301
+/overseas.html /about_us#distributors 301
+/overseas /about_us#distributors 301
+/payu.html /shipping#payment 301
+/payu /shipping#payment 301
+/paypal.html /pay 301
+/paypal /pay 301
