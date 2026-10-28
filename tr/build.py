@@ -6,7 +6,7 @@ LANGS = {'es': ('Español', 'Spanish'), 'fr': ('Français', 'French'), 'ar': ('�
 RTL = {'ar': ('IBM+Plex+Sans+Arabic:wght@400;500;600;700', "'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif"), 'fa': ('Vazirmatn:wght@400;500;600;700;800', "'Vazirmatn', 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif")}
 BASE = 'https://www.lpgpumps.in'
 units = json.load(open(f'{S}/tr/units.json', encoding='utf-8'))
-PHONE = '⁦+91 9212 558 167⁩'
+PHONE = '⁦+91 89207 83083⁩'
 def load(lang):
     d = {}
     for line in open(f'{S}/tr/{lang}.tsv', encoding='utf-8'):
@@ -20,7 +20,7 @@ def load(lang):
     return d
 TOK = re.compile(r'(<!--.*?-->|<style.*?</style>|<script.*?</script>|<svg.*?</svg>|<[^>]+>)', re.S)
 ARABIC = re.compile(r'[؀-ۿ]')
-KEEP = {'Telegram @lpgpumps', 'Telegram', '@lpgpumps', 'YAM', 'info@wingz.in', 'PayPal', 'EMS Speed Post', 'WhatsApp / Viber', 'lpgpumps.in · propanepumps.in', 'WhatsApp +91 9212 558 167', 'Web', 'Motor', 'Manual', 'Contact', 'FAQ', 'Message', '1 HP', 'Carton'}
+KEEP = {'Telegram @lpgpumps', 'Telegram', '@lpgpumps', 'YAM', 'info@wingz.in', 'PayPal', 'EMS Speed Post', 'WhatsApp / Viber', 'lpgpumps.in · propanepumps.in', 'WhatsApp +91 89207 83083', 'Web', 'Motor', 'Manual', 'Contact', 'FAQ', 'Message', '1 HP', 'Carton'}
 missing = {}
 def tr_text(s, d, lang):
     k = s.strip()
