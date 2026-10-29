@@ -2,7 +2,7 @@ import re, sys, json, os, shutil
 S = sys.argv[1]
 SRC, OUT = f'{S}/pages', f'{S}/out'
 MAIN = {'index.html': '', 'products.html': 'products', 'shipping.html': 'shipping', 'about_us.html': 'about_us', 'pay.html': 'pay'}
-LANGS = {'es': ('Español', 'Spanish'), 'fr': ('Français', 'French'), 'ar': ('العربية', 'Arabic'), 'ru': ('Русский', 'Russian'), 'pt': ('Português', 'Portuguese'), 'el': ('Ελληνικά', 'Greek'), 'hy': ('Հայերեն', 'Armenian'), 'vi': ('Tiếng Việt', 'Vietnamese'), 'ms': ('Bahasa Melayu', 'Malay'), 'th': ('ไทย', 'Thai'), 'sw': ('Kiswahili', 'Swahili'), 'af': ('Afrikaans', 'Afrikaans'), 'am': ('አማርኛ', 'Amharic'), 'ha': ('Hausa', 'Hausa'), 'id': ('Bahasa Indonesia', 'Indonesian'), 'tr': ('Türkçe', 'Turkish'), 'bn': ('বাংলা', 'Bengali'), 'tl': ('Filipino', 'Filipino'), 'pl': ('Polski', 'Polish'), 'uk': ('Українська', 'Ukrainian'), 'it': ('Italiano', 'Italian'), 'de': ('Deutsch', 'German'), 'fa': ('فارسی', 'Persian'), 'ko': ('한국어', 'Korean'), 'ja': ('日本語', 'Japanese')}
+LANGS = {'es': ('Español', 'Spanish'), 'fr': ('Français', 'French'), 'ar': ('العربية', 'Arabic'), 'ru': ('Русский', 'Russian'), 'pt': ('Português', 'Portuguese'), 'el': ('Ελληνικά', 'Greek'), 'hy': ('Հայերեն', 'Armenian'), 'vi': ('Tiếng Việt', 'Vietnamese'), 'ms': ('Bahasa Melayu', 'Malay'), 'th': ('ไทย', 'Thai'), 'sw': ('Kiswahili', 'Swahili'), 'af': ('Afrikaans', 'Afrikaans'), 'am': ('አማርኛ', 'Amharic'), 'ha': ('Hausa', 'Hausa'), 'id': ('Bahasa Indonesia', 'Indonesian'), 'tr': ('Türkçe', 'Turkish'), 'bn': ('বাংলা', 'Bengali'), 'tl': ('Filipino', 'Filipino'), 'pl': ('Polski', 'Polish'), 'uk': ('Українська', 'Ukrainian'), 'it': ('Italiano', 'Italian'), 'de': ('Deutsch', 'German'), 'fa': ('فارسی', 'Persian'), 'ko': ('한국어', 'Korean'), 'ja': ('日本語', 'Japanese'), 'uz': ('Oʻzbekcha', 'Uzbek'), 'az': ('Azərbaycanca', 'Azerbaijani'), 'km': ('ខ្មែរ', 'Khmer'), 'lo': ('ລາວ', 'Lao'), 'my': ('မြန်မာ', 'Burmese')}
 RTL = {'ar': ('IBM+Plex+Sans+Arabic:wght@400;500;600;700', "'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif"), 'fa': ('Vazirmatn:wght@400;500;600;700;800', "'Vazirmatn', 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif")}
 BASE = 'https://www.lpgpumps.in'
 units = json.load(open(f'{S}/tr/units.json', encoding='utf-8'))
@@ -138,13 +138,19 @@ for lang, (lname, ename) in LANGS.items():
                     'bn': ('Noto+Sans+Bengali:wght@400;500;600;700;800', "'Noto Sans Bengali', 'Nirmala UI', 'IBM Plex Sans', sans-serif"),
                     'ko': ('Noto+Sans+KR:wght@400;500;700;800', "'Noto Sans KR', 'Malgun Gothic', sans-serif"),
                     'ja': ('Noto+Sans+JP:wght@400;500;700;800', "'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', sans-serif"),
+                    'km': ('Noto+Sans+Khmer:wght@400;500;600;700;800', "'Noto Sans Khmer', 'Khmer OS', 'Leelawadee UI', sans-serif"),
+                    'lo': ('Noto+Sans+Lao:wght@400;500;600;700;800', "'Noto Sans Lao', 'Phetsarath OT', 'Leelawadee UI', sans-serif"),
+                    'my': ('Noto+Sans+Myanmar:wght@400;500;600;700;800', "'Noto Sans Myanmar', 'Myanmar Text', 'Padauk', sans-serif"),
                     'ha': ('Noto+Sans:wght@400;500;600;700;800', "'Noto Sans', 'Segoe UI', Arial, sans-serif")}
             if lang in FULL:
                 fam, stack = FULL[lang]
                 h = h.replace('display=swap">', f'display=swap">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={fam}&display=swap">', 1)
                 a, b2 = h.index('<body'), h.index('</body>')
                 body = re.sub(r"font-family: [^;\"]+", "font-family: " + stack, h[a:b2])
-                if lang in ('th', 'am', 'bn', 'ko', 'ja'):
+                if lang in ('km', 'lo', 'my'):
+                    body = re.sub(r'line-height: 1\.(?:5|55)(?=[;"])', 'line-height: 1.8', body)
+                    body = re.sub(r'line-height: 1(?:\.[0-2]\d?)?(?=[;"])', 'line-height: 1.45', body)
+                elif lang in ('th', 'am', 'bn', 'ko', 'ja'):
                     body = re.sub(r'line-height: 1\.[01]\d?(?=[;"])', 'line-height: 1.3', body)
                 h = h[:a] + body + h[b2:]
             if lang in ('ru', 'uk'):
