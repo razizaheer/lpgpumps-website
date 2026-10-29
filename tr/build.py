@@ -153,6 +153,8 @@ for lang, (lname, ename) in LANGS.items():
                 elif lang in ('th', 'am', 'bn', 'ko', 'ja'):
                     body = re.sub(r'line-height: 1\.[01]\d?(?=[;"])', 'line-height: 1.3', body)
                 h = h[:a] + body + h[b2:]
+                if lang in ('km', 'lo', 'my'):
+                    h = h.replace('body{margin:0}', 'body{margin:0;overflow-wrap:anywhere}', 1)
             if lang in ('ru', 'uk'):
                 h = h.replace('display=swap">', 'display=swap">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@500;600;700;800&display=swap">', 1)
                 h = h.replace("font-family: 'Archivo', sans-serif", "font-family: 'Golos Text', 'Archivo', 'Segoe UI', Arial, sans-serif")
