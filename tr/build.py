@@ -163,5 +163,49 @@ for lang, (lname, ename) in LANGS.items():
 sm = open(f'{OUT}/sitemap.xml', encoding='utf-8').read()
 extra = ''.join(f'<url><loc>{url(l, p)}</loc></url>\n' for l in LANGS for p in MAIN.values()) + ''.join(f'<url><loc>{url(l, "lpg-pump-" + s)}</loc></url>\n' for l, s in LANDING.items())
 open(f'{OUT}/sitemap.xml', 'w', encoding='utf-8').write(sm.replace('</urlset>', extra + '</urlset>'))
+
+# ---- structured data (JSON-LD) for Google, built from each finished page ----
+import html as _html
+def _txt(s): return _html.unescape(re.sub(r'<[^>]+>', '', s)).strip()
+SITE = 'https://www.lpgpumps.in'
+ORG = {"@type": "Organization", "@id": SITE + "/#org", "name": "Wingz", "brand": {"@type": "Brand", "name": "YAM"},
+       "url": SITE + "/", "logo": SITE + "/assets/yam-logo-blue.png", "address": {"@type": "PostalAddress", "addressLocality": "New Delhi", "addressCountry": "IN"},
+       "sameAs": ["https://t.me/lpgpumps"]}
+def add_jsonld(path):
+    h = open(path, encoding='utf-8').read()
+    if 'application/ld+json' in h: return
+    lang = re.search(r'<html lang="([^"]+)"', h).group(1)
+    can = re.search(r'<link rel="canonical" href="([^"]+)"', h)
+    if not can: return
+    url_ = can.group(1)
+    graph = [ORG, {"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "YAM LPG Pumps", "publisher": {"@id": SITE + "/#org"}},
+             {"@type": "WebPage", "url": url_, "name": _txt(re.search(r'<title>(.*?)</title>', h, re.S).group(1)), "inLanguage": lang, "isPartOf": {"@id": SITE + "/#site"}}]
+    for pid in ('dc12', 'ac220', 'commercial', 'belt', 'manual'):
+        m = re.search(r'id="' + pid + r'".*?<img src="([^"]+)".*?<h2[^>]*>(.*?)</h2>\s*<p[^>]*>(.*?)</p>', h, re.S)
+        if m:
+            graph.append({"@type": "Product", "name": "YAM " + _txt(m.group(2)), "description": _txt(m.group(3)), "image": SITE + m.group(1),
+                          "brand": {"@type": "Brand", "name": "YAM"}, "manufacturer": {"@id": SITE + "/#org"}, "url": url_ + "#" + pid, "category": "LPG transfer pump"})
+    qa = re.findall(r'<details[^>]*><summary[^>]*>(.*?)</summary>\s*<p[^>]*>(.*?)</p>', h, re.S)
+    if len(qa) >= 3:
+        graph.append({"@type": "FAQPage", "url": url_, "mainEntity": [{"@type": "Question", "name": _txt(q), "acceptedAnswer": {"@type": "Answer", "text": _txt(a)}} for q, a in qa]})
+    tag = '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False).replace('</', '<\\/') + '</script>\n'
+    open(path, 'w', encoding='utf-8').write(h.replace('</head>', tag + '</head>', 1))
+GUIDES_LINK = {'': ('/guides', 'LPG guides')}
+FOOT_Q = re.compile(r'(<a href="(/[a-z]{2})?/shipping#faq" style="color: #B4BDC3;[^"]*">[^<]*</a>)')
+def add_guides_link(path, lang):
+    if lang not in GUIDES_LINK: return
+    href, label = GUIDES_LINK[lang]
+    h = open(path, encoding='utf-8').read()
+    if f'href="{href}" style="color: #B4BDC3' in h: return
+    st = FOOT_Q.search(h)
+    if not st: return
+    a = st.group(1); style = re.search(r'style="([^"]*)"', a).group(1)
+    open(path, 'w', encoding='utf-8').write(h.replace(a, a + f'<a href="{href}" style="{style}">{label}</a>', 1))
+for root, _, fs in os.walk(OUT):
+    for fn in fs:
+        if fn.endswith('.html'):
+            rel = os.path.relpath(root, OUT)
+            add_guides_link(os.path.join(root, fn), '' if rel == '.' else rel)
+            add_jsonld(os.path.join(root, fn))
 for l, m in missing.items(): print('MISSING', l, len(m), sorted(m)[:40])
 print('built', sum(len(fs) for _, _, fs in os.walk(OUT)), 'files')
