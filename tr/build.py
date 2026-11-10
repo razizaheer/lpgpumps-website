@@ -62,6 +62,8 @@ def add_switcher(h, cur, path):
     return h2
 LANDING = {'tr':'turkey','id':'indonesia','ha':'nigeria','am':'ethiopia','bn':'bangladesh','pl':'poland','uk':'ukraine','tl':'philippines','vi':'vietnam','es':'peru','fr':'mauritius','th':'thailand','sw':'kenya','af':'south-africa'}
 NEWC = {'turkey':'Turkey','indonesia':'Indonesia','nigeria':'Nigeria','ethiopia':'Ethiopia','bangladesh':'Bangladesh','poland':'Poland','ukraine':'Ukraine','philippines':'Philippines','vietnam':'Vietnam'}
+GUIDE = 'guide-fill-car-lpg-tank-from-cylinder'
+GUIDE_LANGS = [l for l in ('es', 'fr', 'th') if os.path.exists(f'{S}/tr/guides/{l}.json')]
 FOOT = re.compile(r'(<a href="/lpg-pump-kenya" (style="color: #B4BDC3[^"]*")>[^<]*</a>)')
 def head_links(h, lang, path, codes=None):
     alts = ''.join(f'<link rel="alternate" hreflang="{c or "en"}" href="{url(c, path)}">\n' for c in (codes if codes is not None else [''] + list(LANGS))) + f'<link rel="alternate" hreflang="x-default" href="{url("", path)}">\n'
@@ -80,6 +82,7 @@ for f in sorted(os.listdir(SRC)):
         slug = f[len('lpg-pump-'):-5]
         loc = [l for l, s in LANDING.items() if s == slug]
         if loc: h = head_links(h, '', f[:-5], ['', loc[0]])
+        if f == GUIDE + '.html' and GUIDE_LANGS: h = head_links(h, '', GUIDE, [''] + GUIDE_LANGS)
     h, n = FOOT.subn(lambda m: m.group(1) + ''.join(f'<a href="/lpg-pump-{s}" {m.group(2)}>{nm}</a>' for s, nm in NEWC.items()), h); assert n == 1, f
     open(f'{OUT}/{f}', 'w', encoding='utf-8').write(h)
 for lang, (lname, ename) in LANGS.items():
@@ -90,6 +93,10 @@ for lang, (lname, ename) in LANGS.items():
         ld = json.load(open(f'{S}/tr/landing/{lang}.json', encoding='utf-8'))
         if lang == 'fr': ld = {k: re.sub(r' ([?!:;])', '\u00a0\\1', v) for k, v in ld.items()}
         d.update(ld); todo[f'lpg-pump-{LANDING[lang]}.html'] = f'lpg-pump-{LANDING[lang]}'
+    if lang in GUIDE_LANGS:
+        gd = json.load(open(f'{S}/tr/guides/{lang}.json', encoding='utf-8'))
+        if lang == 'fr': gd = {k: re.sub(r' ([?!:;])', '\u00a0\\1', v) for k, v in gd.items()}
+        d.update(gd); todo[GUIDE + '.html'] = GUIDE
     for f, path in todo.items():
         landing = f not in MAIN
         h = open(f'{SRC}/{f}', encoding='utf-8').read()
@@ -111,7 +118,8 @@ for lang, (lname, ename) in LANGS.items():
             s = LANDING[lang]
             h = h.replace(f'href="/lpg-pump-{s}"', f'href="/{lang}/lpg-pump-{s}"')
             if s in NEWC: h, n = FOOT.subn(lambda m: m.group(1) + f'<a href="/{lang}/lpg-pump-{s}" {m.group(2)}>{d[NEWC[s]]}</a>', h); assert n == 1
-        h = add_switcher(h, lang, '' if landing else path); h = head_links(h, lang, path, ['', lang] if landing else None)
+        if f == GUIDE + '.html': h = h.replace(f'href="/{GUIDE}"', f'href="/{lang}/{GUIDE}"')
+        h = add_switcher(h, lang, '' if landing else path); h = head_links(h, lang, path, ([''] + GUIDE_LANGS) if f == GUIDE + '.html' else (['', lang] if landing else None))
         if lang in RTL:
             h = h.replace('<html lang="en">', f'<html lang="{lang}" dir="rtl">')
             h = h.replace('display=swap">', 'display=swap">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=' + RTL[lang][0] + '&display=swap">', 1)
@@ -161,7 +169,7 @@ for lang, (lname, ename) in LANGS.items():
         open(f'{OUT}/{lang}/{f}', 'w', encoding='utf-8').write(h)
 # sitemap
 sm = open(f'{OUT}/sitemap.xml', encoding='utf-8').read()
-extra = ''.join(f'<url><loc>{url(l, p)}</loc></url>\n' for l in LANGS for p in MAIN.values()) + ''.join(f'<url><loc>{url(l, "lpg-pump-" + s)}</loc></url>\n' for l, s in LANDING.items())
+extra = ''.join(f'<url><loc>{url(l, p)}</loc></url>\n' for l in LANGS for p in MAIN.values()) + ''.join(f'<url><loc>{url(l, "lpg-pump-" + s)}</loc></url>\n' for l, s in LANDING.items()) + ''.join(f'<url><loc>{url(l, GUIDE)}</loc></url>\n' for l in GUIDE_LANGS)
 open(f'{OUT}/sitemap.xml', 'w', encoding='utf-8').write(sm.replace('</urlset>', extra + '</urlset>'))
 
 # ---- structured data (JSON-LD) for Google, built from each finished page ----
@@ -191,6 +199,9 @@ def add_jsonld(path):
     tag = '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False).replace('</', '<\\/') + '</script>\n'
     open(path, 'w', encoding='utf-8').write(h.replace('</head>', tag + '</head>', 1))
 GUIDES_LINK = {'': ('/guides', 'LPG guides')}
+for _l in GUIDE_LANGS:
+    _g = json.load(open(f'{S}/tr/guides/{_l}.json', encoding='utf-8'))
+    GUIDES_LINK[_l] = (f'/{_l}/{GUIDE}', _g['How to fill a car LPG tank from a gas cylinder.'].rstrip('.。 '))
 FOOT_Q = re.compile(r'(<a href="(/[a-z]{2})?/shipping#faq" style="color: #B4BDC3;[^"]*">[^<]*</a>)')
 def add_guides_link(path, lang):
     if lang not in GUIDES_LINK: return
