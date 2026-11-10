@@ -55,7 +55,7 @@ def switcher(cur, path, rtl=False):
         links.append(f'<a href="{href}" lang="{code or "en"}" hreflang="{code or "en"}" dir="auto" style="{st}; display: inline-flex; align-items: center; min-height: 40px"{" aria-current=\"page\"" if on else ""}>{name}</a>')
     return ('<details style="max-width: 100%"><summary style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: #FFFFFF; font-weight: 500; list-style: none">' + GLOBE
             + f'<span lang="{cur or "en"}">{NAMES[cur]}</span><span aria-hidden="true">&#9662;</span></summary>'
-            + '<nav aria-label="Language" style="display: flex; flex-wrap: wrap; gap: 0 20px; padding: 2px 0 10px; max-width: 760px">' + ''.join(links) + '</nav></details>')
+            + '<nav aria-label="Language" style="display: flex; flex-wrap: wrap; gap: 0 20px; padding: 2px 0 10px; max-width: 760px">' + ''.join(links) + '</nav></details>' + '<script>document.addEventListener(\'click\',function(e){var a=e.target.closest&&e.target.closest(\'a[hreflang]\');if(!a||!a.closest(\'nav[aria-label="Language"]\'))return;try{localStorage.setItem(\'yamLang\',a.getAttribute(\'hreflang\'))}catch(x){}});</script>')
 BAR = re.compile(r'(<div style="padding: 10px 0">[^<]*</div>)\s*')
 def add_switcher(h, cur, path):
     h2, n = BAR.subn(lambda m: m.group(1) + '\n' + switcher(cur, path) + '\n', h, count=1); assert n == 1
