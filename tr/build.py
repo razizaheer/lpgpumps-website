@@ -1,3 +1,4 @@
+from urllib.parse import quote
 import re, sys, json, os, shutil
 S = sys.argv[1]
 SRC, OUT = f'{S}/pages', f'{S}/out'
@@ -118,7 +119,7 @@ for lang, (lname, ename) in LANGS.items():
             s = LANDING[lang]
             h = h.replace(f'href="/lpg-pump-{s}"', f'href="/{lang}/lpg-pump-{s}"')
             if s in NEWC: h, n = FOOT.subn(lambda m: m.group(1) + f'<a href="/{lang}/lpg-pump-{s}" {m.group(2)}>{d[NEWC[s]]}</a>', h); assert n == 1
-        if f == GUIDE + '.html': h = h.replace(f'href="/{GUIDE}"', f'href="/{lang}/{GUIDE}"')
+        if lang in GUIDE_LANGS: h = h.replace(f'href="/{GUIDE}"', f'href="/{lang}/{GUIDE}"')
         h = add_switcher(h, lang, '' if landing else path); h = head_links(h, lang, path, ([''] + GUIDE_LANGS) if f == GUIDE + '.html' else (['', lang] if landing else None))
         if lang in RTL:
             h = h.replace('<html lang="en">', f'<html lang="{lang}" dir="rtl">')
@@ -209,11 +210,29 @@ def add_guides_link(path, lang):
     if not st: return
     a = st.group(1); style = re.search(r'style="([^"]*)"', a).group(1)
     open(path, 'w', encoding='utf-8').write(h.replace(a, a + f'<a href="{href}" style="{style}">{label}</a>', 1))
+# Pre-fill every WhatsApp message with the page it was sent from, so each enquiry shows its source.
+WA = 'https://wa.me/918920783083'
+PAGE_NAMES = {'index': 'home page', 'products': 'pumps page', 'shipping': 'shipping page', 'about_us': 'contact page',
+              'pay': 'PayPal page', 'guides': 'guides page', 'lpg-pump-for-car': 'car pump page',
+              'lpg-cylinder-transfer-pump': 'cylinder pump page', 'propane-transfer-pump': 'propane pump page'}
+def wa_label(fn, lang):
+    stem = fn[:-5]
+    if stem in PAGE_NAMES: name = PAGE_NAMES[stem]
+    elif stem.startswith('lpg-pump-'): name = stem[len('lpg-pump-'):].replace('-', ' ').title() + ' page'
+    elif stem.startswith('guide-'): name = 'guide: ' + stem[len('guide-'):].replace('-', ' ')
+    else: name = stem.replace('-', ' ') + ' page'
+    return name + (', ' + LANGS[lang][1] if lang else '')
+def add_wa_tag(path, fn, lang):
+    h = open(path, encoding='utf-8').read()
+    if WA + '"' not in h: return
+    msg = 'Hello, I found you on lpgpumps.in (' + wa_label(fn, lang) + '). Please send me the price of a pump.'
+    open(path, 'w', encoding='utf-8').write(h.replace('href="' + WA + '"', 'href="' + WA + '?text=' + quote(msg) + '"'))
 for root, _, fs in os.walk(OUT):
     for fn in fs:
         if fn.endswith('.html'):
             rel = os.path.relpath(root, OUT)
             add_guides_link(os.path.join(root, fn), '' if rel == '.' else rel)
             add_jsonld(os.path.join(root, fn))
+            add_wa_tag(os.path.join(root, fn), fn, '' if rel == '.' else rel)
 for l, m in missing.items(): print('MISSING', l, len(m), sorted(m)[:40])
 print('built', sum(len(fs) for _, _, fs in os.walk(OUT)), 'files')
