@@ -188,11 +188,8 @@ def add_jsonld(path):
     url_ = can.group(1)
     graph = [ORG, {"@type": "WebSite", "@id": SITE + "/#site", "url": SITE + "/", "name": "YAM LPG Pumps", "publisher": {"@id": SITE + "/#org"}},
              {"@type": "WebPage", "url": url_, "name": _txt(re.search(r'<title>(.*?)</title>', h, re.S).group(1)), "inLanguage": lang, "isPartOf": {"@id": SITE + "/#site"}}]
-    for pid in ('dc12', 'ac220', 'commercial', 'belt', 'manual'):
-        m = re.search(r'id="' + pid + r'".*?<img src="([^"]+)".*?<h2[^>]*>(.*?)</h2>\s*<p[^>]*>(.*?)</p>', h, re.S)
-        if m:
-            graph.append({"@type": "Product", "name": "YAM " + _txt(m.group(2)), "description": _txt(m.group(3)), "image": SITE + m.group(1),
-                          "brand": {"@type": "Brand", "name": "YAM"}, "manufacturer": {"@id": SITE + "/#org"}, "url": url_ + "#" + pid, "category": "LPG transfer pump"})
+    # No Product nodes: the site shows no prices, and Google requires offers, review or
+    # aggregateRating on Product markup. Add them back only with real prices (Offer).
     qa = re.findall(r'<details[^>]*><summary[^>]*>(.*?)</summary>\s*<p[^>]*>(.*?)</p>', h, re.S)
     if len(qa) >= 3:
         graph.append({"@type": "FAQPage", "url": url_, "mainEntity": [{"@type": "Question", "name": _txt(q), "acceptedAnswer": {"@type": "Answer", "text": _txt(a)}} for q, a in qa]})
