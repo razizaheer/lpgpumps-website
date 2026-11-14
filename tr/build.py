@@ -227,6 +227,22 @@ def add_wa_tag(path, fn, lang):
     if WA + '"' not in h: return
     msg = 'Hello, I found you on lpgpumps.in (' + wa_label(fn, lang) + '). Please send me the price of a pump.'
     open(path, 'w', encoding='utf-8').write(h.replace('href="' + WA + '"', 'href="' + WA + '?text=' + quote(msg) + '"'))
+FLYERS = {'dc12': 'yam-12v-dc-lpg-pump', 'ac220': 'yam-220v-ac-lpg-pump', 'commercial': 'yam-1hp-commercial-lpg-pump', 'belt': 'yam-1hp-belt-drive-lpg-pump', 'manual': 'yam-manual-lpg-pump'}
+FLY = json.load(open(f'{S}/tr/flyers.json', encoding='utf-8'))
+def add_flyer_buttons(path, lang):
+    # products page: a "Download flyer (PDF)" button beside each model's quote button
+    h = open(path, encoding='utf-8').read()
+    label = FLY.get(lang, {}).get('Download flyer (PDF)', 'Download flyer (PDF)')
+    for mid, f in FLYERS.items():
+        i = h.index(f'<section id="{mid}"'); j = h.index('</section>', i)
+        sec = h[i:j]
+        m = re.search(r'href="[^"]*about_us#contact"', sec); assert m, (lang, mid)
+        k = sec.index('</a>', m.start()) + 4
+        btn = (f'\n<a href="/flyers/{lang or "en"}/{f}.pdf" download style="background: #FFFFFF; color: #0F1419; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; min-height: 50px; padding: 0 20px; border-radius: 6px; border: 1.5px solid #0F1419">'
+               '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>'
+               f'{label}</a>')
+        h = h[:i] + sec[:k] + btn + sec[k:] + h[j:]
+    open(path, 'w', encoding='utf-8').write(h)
 for root, _, fs in os.walk(OUT):
     for fn in fs:
         if fn.endswith('.html'):
@@ -234,5 +250,6 @@ for root, _, fs in os.walk(OUT):
             add_guides_link(os.path.join(root, fn), '' if rel == '.' else rel)
             add_jsonld(os.path.join(root, fn))
             add_wa_tag(os.path.join(root, fn), fn, '' if rel == '.' else rel)
+            if fn == 'products.html': add_flyer_buttons(os.path.join(root, fn), '' if rel == '.' else rel)
 for l, m in missing.items(): print('MISSING', l, len(m), sorted(m)[:40])
 print('built', sum(len(fs) for _, _, fs in os.walk(OUT)), 'files')
