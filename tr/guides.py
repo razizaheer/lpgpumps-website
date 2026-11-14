@@ -30,7 +30,7 @@ def hero(eyebrow, h1, intro, img, alt):
             f'<div style="{EYEBROW}">{esc(eyebrow)}</div>\n'
             f'<h1 style="margin: 0; font-family: \'Archivo\', sans-serif; font-weight: 800; font-size: clamp(34px, 4.4vw, 56px); line-height: 1.06; letter-spacing: -0.02em">{esc(h1)}</h1>\n'
             f'<p style="margin: 0; font-size: 20px; color: #3A444D; max-width: 32em">{esc(intro)}</p>\n</div>\n'
-            f'<div style="flex: 1 1 420px; min-width: 0"><img src="{img}" alt="{html.escape(alt)}" style="display: block; width: 100%; height: 400px; object-fit: cover; border: 1px solid #C9CFC8; border-radius: 10px; box-sizing: border-box; background: #FFFFFF"></div>\n</section>')
+            f'<div style="flex: 1 1 420px; min-width: 0"><img src="{img}" alt="{html.escape(alt)}" style="display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; border: 1px solid #C9CFC8; border-radius: 10px; box-sizing: border-box; background: #FFFFFF"></div>\n</section>')
 
 def block(h2, *paras, items=None, ordered=False):
     out = [f'<section style="{WRAP}; padding-top: 40px"><div style="display: flex; flex-direction: column; gap: 14px; max-width: 900px">', f'<h2 style="{H2}">{esc(h2)}</h2>']
@@ -175,7 +175,7 @@ print('wrote', len(pages), 'guides')
 # hub page
 cards = ''.join(
     f'<a href="{u}" style="flex: 1 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #D5DAD4; border-radius: 10px; padding: 26px; display: flex; flex-direction: column; gap: 10px; color: #0F1419; text-decoration: none">'
-    f'<img src="{img}" alt="" style="display: block; width: 100%; height: 200px; object-fit: cover; border-radius: 6px">'
+    f'<img src="{img}" alt="" style="display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; border-radius: 6px">'
     f'<strong style="font-family: \'Archivo\', sans-serif; font-size: 22px; line-height: 1.2">{esc(t)}</strong><span style="color: #3A444D">{esc(d)}</span></a>'
     for (u, t), img, d in zip(ALL, ['/assets/use-car-filling.jpg', '/assets/use-cylinder-to-cylinder.jpg', '/assets/pump-12v-dc.jpg'],
                               ['What you need, step by step, safety and how long it takes.', 'Filling small cylinders by weight, without overfilling.', 'Compare the five pumps by power, weight and use.']))
