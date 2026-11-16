@@ -56,7 +56,7 @@ MODELS = [
     dict(id='commercial', file='yam-1hp-commercial-lpg-pump', short='1 HP commercial pump', img='pump-1hp-commercial.jpg',
          use='use-1hp-cylinder-to-cylinder.jpg', cap='Moving gas from a big cylinder to a smaller one'),
     dict(id='belt', file='yam-1hp-belt-drive-lpg-pump', short='1 HP belt-drive pump', img='pump-1hp-belt-drive.jpg',
-         use='parts-and-spares.jpg', cap='Spare parts are supplied with every pump'),
+         use='use-belt-cylinder-to-cylinder.jpg', cap='Moving gas from a big cylinder to a smaller one'),
     dict(id='manual', file='yam-manual-lpg-pump', short='manual pump', img='pump-manual.jpg', use='poster-manual.jpg',
          cap='The manual pump in use: no electricity needed', use_pos='50% 78%'),
 ]
