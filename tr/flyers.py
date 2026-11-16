@@ -54,7 +54,7 @@ MODELS = [
     dict(id='ac220', file='yam-220v-ac-lpg-pump', short='220V AC pump', img='pump-220v-ac.jpg', use='use-cylinder-to-cylinder.jpg',
          cap='Moving gas from a big cylinder to a smaller one'),
     dict(id='commercial', file='yam-1hp-commercial-lpg-pump', short='1 HP commercial pump', img='pump-1hp-commercial.jpg',
-         use='use-1hp-cylinders.jpg', use_ar='4 / 5', use_w='52mm', use_pos='50% 42%', cap='Moving gas from a big cylinder to a smaller one'),
+         use='use-1hp-cylinder-to-cylinder.jpg', cap='Moving gas from a big cylinder to a smaller one'),
     dict(id='belt', file='yam-1hp-belt-drive-lpg-pump', short='1 HP belt-drive pump', img='pump-1hp-belt-drive.jpg',
          use='parts-and-spares.jpg', cap='Spare parts are supplied with every pump'),
     dict(id='manual', file='yam-manual-lpg-pump', short='manual pump', img='pump-manual.jpg', use='poster-manual.jpg',
