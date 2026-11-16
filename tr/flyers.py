@@ -54,7 +54,7 @@ MODELS = [
     dict(id='ac220', file='yam-220v-ac-lpg-pump', short='220V AC pump', img='pump-220v-ac.jpg', use='use-cylinder-to-cylinder.jpg',
          cap='Moving gas from a big cylinder to a smaller one'),
     dict(id='commercial', file='yam-1hp-commercial-lpg-pump', short='1 HP commercial pump', img='pump-1hp-commercial.jpg',
-         use='use-cylinder-to-cylinder.jpg', cap='Moving gas from a big cylinder to a smaller one'),
+         use='use-1hp-cylinders.jpg', use_ar='4 / 5', use_w='52mm', use_pos='50% 42%', cap='Moving gas from a big cylinder to a smaller one'),
     dict(id='belt', file='yam-1hp-belt-drive-lpg-pump', short='1 HP belt-drive pump', img='pump-1hp-belt-drive.jpg',
          use='parts-and-spares.jpg', cap='Spare parts are supplied with every pump'),
     dict(id='manual', file='yam-manual-lpg-pump', short='manual pump', img='pump-manual.jpg', use='poster-manual.jpg',
@@ -211,7 +211,7 @@ def page(m, lang, d, T, mt, missing):
 <div class="hero"><div class="eyebrow">{e(eyebrow)}</div><h1>{e(t(x['title']))}</h1><p class="desc">{e(t(x['desc']))}</p></div>
 <div class="photo"><img src="{jpeg_uri(m['img'], 1400)}" alt=""></div>
 <div class="mid"><div class="specs"><h2>{e(f('Specifications'))}</h2><table>{rows}</table></div>
-<div class="side"><img class="use" style="object-position: {m.get('use_pos', '50% 50%')}" src="{jpeg_uri(m['use'], 900)}" alt=""><div class="cap">{e(f(m['cap']))}</div>
+<div class="side"><img class="use" style="object-position: {m.get('use_pos', '50% 50%')}; aspect-ratio: {m.get('use_ar', '3 / 2')}; width: {m.get('use_w', '100%')}" src="{jpeg_uri(m['use'], 900)}" alt=""><div class="cap">{e(f(m['cap']))}</div>
 </div></div>
 <ul class="every"><li>{e(t('Every YAM pump handles up to 22 kg/cm² (21.5 bar) and ships in ready-to-use condition, with its hoses and valves in the carton.'))}</li><li>{e(t('1-year guarantee'))}</li></ul>
 <div class="contact"><div class="l"><p class="ask">{e(t('Ask the price'))}</p><p class="reply">{e(t('We answer every message personally.'))}</p>
@@ -234,7 +234,7 @@ if __name__ == '__main__':
             d, T, missing = load(lang), FLY.get(lang, {}), set()
             od = os.path.join(OUTROOT, lang or 'en')
             os.makedirs(od, exist_ok=True)
-            for m in MODELS:
+            for m in [x for x in MODELS if not os.environ.get('ONLY') or x['id'] == os.environ['ONLY']]:
                 pg.set_content(page(m, lang, d, T, mt, missing), wait_until='networkidle')
                 pg.evaluate('document.fonts.ready')
                 # shrink the main photo until everything fits on one A4 page
